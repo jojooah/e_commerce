@@ -1,5 +1,6 @@
 package com.jojo.ecommerce.adapter.out.persistence;
 
+import com.jojo.ecommerce.application.exception.ProductNotFoundException;
 import com.jojo.ecommerce.application.port.out.ProductRepositoryPort;
 import com.jojo.ecommerce.domain.model.Product;
 import org.springframework.stereotype.Repository;
@@ -24,6 +25,7 @@ public class ProductRepositoryMap implements ProductRepositoryPort {
     public Product save(Product product) {
         Long id = ++sequence;
         product.setProductId(id);
+
        repository.put(id, product);
         return repository.get(id);
     }
@@ -42,5 +44,15 @@ public class ProductRepositoryMap implements ProductRepositoryPort {
         return new ArrayList<>(repository.values());
     }
 
+    @Override
+    public Product updateProduct(Product product) {
+       if(repository.get(product.getProductId()) == null){
+           throw new ProductNotFoundException(product.getProductId());
+       }
+        repository.put(product.getProductId(), product);
+
+        return product;
+
+    }
 }
 
