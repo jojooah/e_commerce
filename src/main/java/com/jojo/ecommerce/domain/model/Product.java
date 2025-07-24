@@ -8,7 +8,7 @@ import lombok.Setter;
 public class Product extends Common {
     @Getter
     @Setter
-    long productId;                 // id
+    Long productId;                 // id
     @Getter
     String productName;             // 상품명
     @Getter
