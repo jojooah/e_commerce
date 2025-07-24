@@ -1,6 +1,5 @@
 package com.jojo.ecommerce.application.service;
 
-import com.jojo.ecommerce.adapter.out.persistence.PointRepositoryMap;
 import com.jojo.ecommerce.application.port.in.PointUseCase;
 import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
 import com.jojo.ecommerce.domain.model.Point;

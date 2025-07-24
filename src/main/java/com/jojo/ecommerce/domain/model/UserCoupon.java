@@ -13,11 +13,18 @@ import lombok.Setter;
 public class UserCoupon extends Common {
     private Long userId;
     private Long couponId;
+    private Long campaignId;
     private String UseYn;
 
     public UserCoupon(Long userId, Long couponId) {
         this.userId = userId;
         this.couponId = couponId;
+    }
+
+    public UserCoupon(Long userId, Long couponId, Long campaignId ) {
+        this.userId = userId;
+        this.couponId = couponId;
+        this.campaignId = campaignId;
     }
 
     public void useCoupon() {

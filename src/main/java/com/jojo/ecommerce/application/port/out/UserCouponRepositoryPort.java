@@ -12,4 +12,6 @@ public interface UserCouponRepositoryPort {
     // 유저-쿠폰정보 저장
     UserCoupon saveCoupon(UserCoupon userCoupon);
 
+    // 쿠폰 발급 확인
+    boolean existsByUserCouponId(Long userId, Long campaignId);
 }

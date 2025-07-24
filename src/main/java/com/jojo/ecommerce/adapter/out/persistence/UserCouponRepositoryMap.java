@@ -34,6 +34,13 @@ public class UserCouponRepositoryMap implements UserCouponRepositoryPort {
     }
 
     @Override
+    public boolean existsByUserCouponId(Long userId, Long couponId) {
+        String key = makeKey(userId, couponId);
+        return repository.containsKey(key);
+    }
+
+
+    @Override
     public UserCoupon updateCoupon(UserCoupon userCoupon) {
         String key = makeKey(userCoupon.getUserId(), userCoupon.getCouponId());
         if (repository.get(key) == null) {
