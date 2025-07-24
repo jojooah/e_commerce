@@ -14,6 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 /**
  * 결제 - 재고차감 테스트
@@ -86,6 +89,53 @@ public class PaymentProductStockRepositoryTest {
         Product afterCancel = productRepo.findProductById(productId);
         assertEquals(5, afterCancel.getStock(),
                 "주문 취소 시 원래 재고만큼 재고가 복원되어야 한다");
+    }
+
+
+    @Test
+    void 결제실패시_재고가_원복된다() {
+        // 상품 저장
+        Product prod = new Product("실패테스트", 4, 2500, 300);
+        Product saved = productRepo.save(prod);
+        Long productId = saved.getProductId();
+
+        // 주문 생성 (수량 2)
+        Order order = new Order(200L);
+        order.addOrderItem(new OrderItem(productId, 2, 2500));
+        Order savedOrder = orderRepo.saveOrder(order);
+
+        // 결재실패
+        PaymentRepositoryPort spyPayment = spy(paymentRepo);
+        doThrow(new RuntimeException("결제 실패"))
+                .when(spyPayment).savePayment(any(Payment.class));
+
+        // 결제 전 재고 확인
+        int beforeStock = productRepo.findProductById(productId).getStock();
+        assertEquals(4, beforeStock);
+
+        //  차감 → 결재실패 → 원복
+        try {
+            // 재고 차감
+            for (OrderItem item : savedOrder.getOrderItems()) {
+                Product p1 = productRepo.findProductById(item.getProductId());
+                p1.decreaseStock(item.getQuantity());
+                productRepo.updateProduct(p1);
+            }
+            // 여기서 발생?
+            spyPayment.savePayment(new Payment(order.getOrderId(), 1L, null, "CARD", 5000));
+        } catch (RuntimeException e) {
+            // 복원 로직
+            for (OrderItem item : savedOrder.getOrderItems()) {
+                Product p2 = productRepo.findProductById(item.getProductId());
+                p2.restoreStock(item.getQuantity());
+                productRepo.updateProduct(p2);
+            }
+        }
+
+        // 원래대로 복원됐는지 확인
+        int afterStock = productRepo.findProductById(productId).getStock();
+        assertEquals(beforeStock, afterStock,
+                "결제 실패 시 재고가 원래 수량으로 복원되어야 한다");
     }
 
 }
