@@ -22,7 +22,7 @@ public class PlaceOrderService implements OrderUseCase {
 
         // 상품 주문정보 돌면서 주문 아이템 생성
         for(ProductDto productDto : createOrderRequest.getProductDtoList()){
-            order.addOrderItem(new OrderItem(order.getOrderId(),productDto.getProductId(), productDto.getQauntity()));
+            order.addOrderItem(new OrderItem(order.getOrderId(),productDto.getProductId(), productDto.getQauntity(),productDto.getProductPrice()));
         }
 
         return orderRepositoryPort.saveOrder(order);

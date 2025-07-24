@@ -6,17 +6,12 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Getter
+@Setter
 public class Order extends Common {
-    @Getter
-    @Setter
     private Long orderId;
-    @Getter
     private Long userId;
-    @Setter
-    @Getter
     private STATUS_TYPE paymentStatus = STATUS_TYPE.PAYMENT_PENDING;
-    @Getter
     private List<OrderItem> orderItems = new ArrayList<OrderItem>();
 
     public Order(Long userId) {
@@ -35,5 +30,10 @@ public class Order extends Common {
         this.orderItems.add(orderItem);
     }
 
+    public int calculateTotalPrice() {
+        return orderItems.stream()
+                .mapToInt(item -> item.getUnitPrice() * item.getQuantity())
+                .sum();
+    }
 
 }

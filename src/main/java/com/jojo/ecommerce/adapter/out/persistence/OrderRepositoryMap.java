@@ -16,11 +16,10 @@ public class OrderRepositoryMap implements OrderRepositoryPort {
     // 주문 저장
     @Override
     public Order saveOrder(Order order){
-        sequence++;
-        order.setOrderId(sequence);
-
-        repository.put(sequence, order);
-        return repository.get(sequence);
+        Long id = ++sequence;
+        order.setOrderId(id);
+        repository.put(id, order);
+        return order;
     }
 
     @Override
@@ -29,12 +28,14 @@ public class OrderRepositoryMap implements OrderRepositoryPort {
             throw new OrderNotFoundException(order.getOrderId());
         }
         repository.put(order.getOrderId(),order);
-
         return order;
     }
 
     @Override
     public Order findByOrderId(Long orderId){
+        if(orderId ==null || !repository.containsKey(orderId)){
+            throw new OrderNotFoundException(orderId);
+        }
         return repository.get(orderId);
     }
 
