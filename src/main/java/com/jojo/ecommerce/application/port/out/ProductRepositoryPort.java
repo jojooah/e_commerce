@@ -23,5 +23,10 @@ public interface ProductRepositoryPort {
      */
     List<Product> findAllProducts();
 
+    /**
+     *  상품 수정
+     */
+    Product updateProduct(Product product);
+
 
 }
