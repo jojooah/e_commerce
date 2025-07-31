@@ -4,10 +4,12 @@ package com.jojo.ecommerce.domain.model;
 import com.jojo.ecommerce.application.exception.OutOfStockException;
 import com.jojo.ecommerce.domain.Common;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class Product extends Common {
     Long productId;                 // id
     String productName;             // 상품명
