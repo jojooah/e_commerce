@@ -29,7 +29,11 @@ public class CouponCampaignRepositoryMyBatis implements CouponCampaignRepository
     @Override
     @Transactional
     public CouponCampaign saveCampaign(CouponCampaign campaign) {
-        mapper.insertCampaign(campaign);
-        return campaign;
+        if (campaign.getCampaignId() == null) {
+            mapper.insertCampaign(campaign);
+        } else {
+            mapper.updateCampaign(campaign);
+        }
+        return mapper.selectCampaignById(campaign.getCampaignId());
     }
 }
