@@ -1,6 +1,6 @@
 package com.jojo.ecommerce;
 
-import com.jojo.ecommerce.adapter.out.persistence.PointRepositoryMyBatis;
+import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
 import com.jojo.ecommerce.domain.model.Point;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,14 +9,14 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // 실제 MySQL에 연결
 class PointRepositoryMyBatisDbTest {
 
     @Autowired
-    private PointRepositoryMyBatis repository;
+    private PointRepositoryPort repository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -28,7 +28,7 @@ class PointRepositoryMyBatisDbTest {
     }
 
     @Test
-    void updatePoint_insertsRowInRealDb() {
+    void 포인트_충전() {
         // given
         Long userId = 123L;
         Point toSave = new Point(userId, 500);
@@ -36,20 +36,10 @@ class PointRepositoryMyBatisDbTest {
         // when
         repository.updatePoint(toSave);
 
-        // then: DB에 한 건이 들어갔는지 확인
-        Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM point WHERE user_id = ?",
-                Integer.class,
-                userId
-        );
-        assertThat(count).isEqualTo(1);
+        Point save = repository.findPointByUserId(userId);
 
-        // 그리고 값도 정확한지 확인
-        Integer stored = jdbcTemplate.queryForObject(
-                "SELECT point FROM point WHERE user_id = ?",
-                Integer.class,
-                userId
-        );
-        assertThat(stored).isEqualTo(500);
+        assertEquals(500, save.getPoint());
+        assertEquals(toSave.getUserId(), save.getUserId());
+
     }
 }
