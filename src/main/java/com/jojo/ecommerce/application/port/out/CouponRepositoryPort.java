@@ -6,9 +6,6 @@ public interface CouponRepositoryPort {
     // 쿠폰정보 조회
     Coupon findByCouponId(Long couponId);
 
-    // 쿠폰정보 수정
-    Coupon updateCoupon(Coupon coupon);
-
     // 쿠폰정보 저장
     Coupon saveCoupon(Coupon coupon);
 

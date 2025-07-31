@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.CouponMapper">
+
+    <resultMap id="CouponResult" type="com.jojo.ecommerce.domain.model.Coupon">
+        <id   property="couponId" column="coupon_id"/>
+        <result property="couponCode"  column="coupon_code"/>
+        <result property="discountRate"  column="discount_rate"/>
+        <result property="regDate"   column="reg_date"/>
+        <result property="updDate"   column="upd_date"/>
+    </resultMap>
+
+    <insert id="insertCoupon" parameterType="com.jojo.ecommerce.domain.model.Coupon" useGeneratedKeys="true" keyProperty="couponId" keyColumn="coupon_id">
+        INSERT INTO coupon (
+            coupon_code
+          , coupon_name
+          , discount_rate
+          , reg_date
+        )
+        VALUES (
+            #{couponCode}
+          , #{couponName}
+          , #{discountRate}
+          , NOW()
+        )
+    </insert>
+
+    <select id="selectCouponById" resultMap="CouponResult" parameterType="long">
+        SELECT
+            coupon_id
+          , coupon_code
+          , discount_rate
+          , reg_date
+          , upd_date
+        FROM coupon
+        WHERE coupon_id = #{couponId}
+    </select>
+
+</mapper>

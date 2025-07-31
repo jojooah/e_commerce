@@ -1,32 +1,34 @@
 package com.jojo.ecommerce.adapter.out.persistence;
 
+
 import com.jojo.ecommerce.application.exception.CouponNotFoundException;
 import com.jojo.ecommerce.application.port.out.CouponRepositoryPort;
 import com.jojo.ecommerce.domain.model.Coupon;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+@Primary
 @Repository
-public class CouponRepositoryMap implements CouponRepositoryPort {
-    private final Map<Long, Coupon> repository = new ConcurrentHashMap<>();
-    private Long sequence = 0L;
+@Transactional
+@RequiredArgsConstructor
+public class CouponRepositoryMyBatis implements CouponRepositoryPort {
+    private final CouponMapper mapper;
 
     @Override
     public Coupon saveCoupon(Coupon coupon) {
-        Long id = ++sequence;
-        coupon.setCouponId(id);
-        repository.put(id, coupon);
+        mapper.insertCoupon(coupon);
         return coupon;
     }
 
     @Override
     public Coupon findByCouponId(Long couponId) {
-        if (!repository.containsKey(couponId)) {
+        Coupon coupon = mapper.selectCouponById(couponId);
+        if (coupon == null) {
             throw new CouponNotFoundException(couponId);
         }
-        return repository.get(couponId);
+        return coupon;
     }
 
 }

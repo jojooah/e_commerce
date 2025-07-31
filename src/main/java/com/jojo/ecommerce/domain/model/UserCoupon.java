@@ -1,7 +1,9 @@
 package com.jojo.ecommerce.domain.model;
 
 import com.jojo.ecommerce.domain.Common;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -10,11 +12,13 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserCoupon extends Common {
     private Long userId;
     private Long couponId;
     private Long campaignId;
-    private String UseYn;
+    private String UseYn="N";
 
     public UserCoupon(Long userId, Long couponId) {
         this.userId = userId;
