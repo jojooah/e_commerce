@@ -1,11 +1,15 @@
 package com.jojo.ecommerce.domain.model;
 
 import com.jojo.ecommerce.domain.Common;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Payment extends Common {
     private Long paymentId;
     private Long orderId;       //주문id
