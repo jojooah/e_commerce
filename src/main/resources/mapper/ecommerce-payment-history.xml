@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.PaymentHistoryMapper">
+
+    <resultMap id="PaymentHistoryMap" type="com.jojo.ecommerce.domain.model.PaymentHistory">
+        <id column="payment_history_id" property="paymentHistoryId"/>
+        <result column="payment_id"          property="paymentId"/>
+        <result column="payment_status"      property="paymentStatus" javaType="com.jojo.ecommerce.domain.model.STATUS_TYPE" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result column="reg_date"            property="regDate"/>
+        <result column="upd_date"            property="updDate"/>
+    </resultMap>
+
+    <insert id="insertPaymentHistory" parameterType="com.jojo.ecommerce.domain.model.PaymentHistory" useGeneratedKeys="true" keyProperty="paymentHistoryId">
+        INSERT INTO payment_history (
+            payment_id,
+            payment_status,
+            reg_date
+        ) VALUES (
+            #{paymentId},
+            #{paymentStatus},
+            NOW()
+        )
+    </insert>
+
+    <select id="selectByPaymentId" resultMap="PaymentHistoryMap" parameterType="long">
+        SELECT
+            payment_history_id,
+            payment_id,
+            payment_status,
+            reg_date,
+            upd_date
+        FROM payment_history
+        WHERE payment_id = #{paymentId}
+        ORDER BY payment_history_id
+    </select>
+</mapper>
