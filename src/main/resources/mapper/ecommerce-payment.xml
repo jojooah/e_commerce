@@ -52,12 +52,7 @@
     <update id="updatePayment" parameterType="com.jojo.ecommerce.domain.model.Payment">
         UPDATE payment
         SET
-            order_id       = #{orderId}
-          , user_id        = #{userId}
-          , coupon_id      = #{couponId}
-          , payment_method = #{paymentMethod}
-          , payment_price  = #{paymentPrice}
-          , payment_status = #{paymentStatus}
+            payment_status = #{paymentStatus}
           , upd_date       = NOW()
         WHERE payment_id = #{paymentId}
     </update>

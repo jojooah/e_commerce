@@ -21,7 +21,7 @@ public class PaymentService implements PaymentUseCase {
 
     @Override
     @Transactional
-    public boolean pay(CreatePaymentRequest createPaymentRequest) {
+    public Payment pay(CreatePaymentRequest createPaymentRequest) {
         Long orderId = createPaymentRequest.getOrderId();
 
         // 주문정보 가져오기
@@ -70,7 +70,7 @@ public class PaymentService implements PaymentUseCase {
         // 결제 이력 저장
         historyRepo.savePaymentHistory(new PaymentHistory(saved.getPaymentId(), STATUS_TYPE.PAYMENT_COMPLETED));
 
-        return true;
+        return saved;
     }
 
     @Override

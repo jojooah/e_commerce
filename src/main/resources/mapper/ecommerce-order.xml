@@ -4,7 +4,7 @@
 <mapper namespace="com.jojo.ecommerce.adapter.out.persistence.OrderMapper">
 
     <resultMap id="ItemResult" type="com.jojo.ecommerce.domain.model.OrderItem">
-        <id column="item_id"    property="itemId"/>
+        <id column="order_item_id"    property="orderItemId"/>
         <result column="order_id"   property="orderId"/>
         <result column="product_id" property="productId"/>
         <result column="unit_price" property="unitPrice"/>
@@ -13,13 +13,23 @@
         <result column="upd_date"   property="updDate"/>
     </resultMap>
 
+    <resultMap id="OrderItemResult" type="com.jojo.ecommerce.domain.model.OrderItem">
+        <id column="item_id"    property="itemId"/>
+        <result column="order_id"   property="orderId"/>
+        <result column="product_id" property="productId"/>
+        <result column="quantity"   property="quantity"/>
+        <result column="price"      property="price"/>
+        <result column="reg_date"   property="regDate"/>
+        <result column="upd_date"   property="updDate"/>
+    </resultMap>
+
     <resultMap id="OrderResult" type="com.jojo.ecommerce.domain.model.Order">
-        <id     column="order_id"    property="orderId"/>
-        <result column="user_id"     property="userId"/>
-        <result column="payment_status" property="paymentStatus"/>
-        <result column="reg_date"    property="regDate"/>
-        <result column="upd_date"    property="updDate"/>
-        <collection property="orderItems" ofType="com.jojo.ecommerce.domain.model.OrderItem" resultMap="ItemResult"/>
+        <id column="order_id"   property="orderId"/>
+        <result column="user_id"    property="userId"/>
+        <result column="reg_date"   property="regDate"/>
+        <result column="payment_status" property="paymentStatus" javaType="com.jojo.ecommerce.domain.model.STATUS_TYPE" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result column="upd_date"   property="updDate"/>
+        <collection property="orderItems" ofType="com.jojo.ecommerce.domain.model.OrderItem" resultMap="OrderItemResult"/>
     </resultMap>
 
     <select id="selectItemsByOrderId" resultMap="ItemResult" parameterType="long">
@@ -35,17 +45,22 @@
         WHERE order_id = #{orderId}
     </select>
 
-
     <select id="selectOrderById" resultMap="OrderResult" parameterType="long">
-        SELECT
-            order_id
-          , user_id
-          , payment_status
-          , reg_date
-          , upd_date
-        FROM orders
-        WHERE order_id = #{orderId}
+        SELECT o.order_id,
+               o.user_id,
+               o.reg_date,
+               o.upd_date,
+               i.order_item_id,
+               i.product_id,
+               i.quantity,
+               i.unit_price,
+               i.reg_date AS reg_date,
+               i.upd_date AS upd_date
+        FROM orders o
+                 LEFT JOIN order_item i ON o.order_id = i.order_id
+        WHERE o.order_id = #{orderId}
     </select>
+
 
     <insert id="insertOrder" parameterType="com.jojo.ecommerce.domain.model.Order" useGeneratedKeys="true" keyProperty="orderId">
         INSERT INTO orders(
@@ -66,7 +81,7 @@
         WHERE order_id = #{orderId}
     </update>
 
-    <insert id="insertOrderItem" parameterType="com.jojo.ecommerce.domain.model.OrderItem" useGeneratedKeys="true" keyProperty="itemId">
+    <insert id="insertOrderItem" parameterType="com.jojo.ecommerce.domain.model.OrderItem" useGeneratedKeys="true" keyProperty="orderItemId">
         INSERT INTO order_item (
             order_id
           , product_id
