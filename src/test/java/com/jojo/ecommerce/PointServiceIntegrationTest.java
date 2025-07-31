@@ -11,6 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * 성공!
+ */
 @SpringBootTest
 @Transactional
 public class PointServiceIntegrationTest {
