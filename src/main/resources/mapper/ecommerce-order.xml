@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.OrderMapper">
+
+    <resultMap id="ItemResult" type="com.jojo.ecommerce.domain.model.OrderItem">
+        <id column="item_id"    property="itemId"/>
+        <result column="order_id"   property="orderId"/>
+        <result column="product_id" property="productId"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="quantity"   property="quantity"/>
+        <result column="reg_date"   property="regDate"/>
+        <result column="upd_date"   property="updDate"/>
+    </resultMap>
+
+    <resultMap id="OrderResult" type="com.jojo.ecommerce.domain.model.Order">
+        <id     column="order_id"    property="orderId"/>
+        <result column="user_id"     property="userId"/>
+        <result column="payment_status" property="paymentStatus"/>
+        <result column="reg_date"    property="regDate"/>
+        <result column="upd_date"    property="updDate"/>
+        <collection property="orderItems" ofType="com.jojo.ecommerce.domain.model.OrderItem" resultMap="ItemResult"/>
+    </resultMap>
+
+    <select id="selectItemsByOrderId" resultMap="ItemResult" parameterType="long">
+        SELECT
+            order_item_id
+          , order_id
+          , product_id
+          , unit_price
+          , quantity
+          , reg_date
+          , upd_date
+        FROM order_item
+        WHERE order_id = #{orderId}
+    </select>
+
+
+    <select id="selectOrderById" resultMap="OrderResult" parameterType="long">
+        SELECT
+            order_id
+          , user_id
+          , payment_status
+          , reg_date
+          , upd_date
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <insert id="insertOrder" parameterType="com.jojo.ecommerce.domain.model.Order" useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO orders(
+            user_id
+          , payment_status
+          , reg_date
+        ) VALUES (
+            #{userId}
+          , #{paymentStatus}
+          , NOW()
+        )
+    </insert>
+
+    <update id="updateOrder" parameterType="com.jojo.ecommerce.domain.model.Order">
+        UPDATE orders
+        SET payment_status = #{paymentStatus},
+            upd_date = NOW()
+        WHERE order_id = #{orderId}
+    </update>
+
+    <insert id="insertOrderItem" parameterType="com.jojo.ecommerce.domain.model.OrderItem" useGeneratedKeys="true" keyProperty="itemId">
+        INSERT INTO order_item (
+            order_id
+          , product_id
+          , unit_price
+          , quantity
+          , reg_date
+        )
+        VALUES (
+            #{orderId}
+          , #{productId}
+          , #{unitPrice}
+          , #{quantity}
+          , NOW()
+        )
+    </insert>
+
+    <delete id="deleteItemsByOrderId" parameterType="long">
+        DELETE
+        FROM order_item
+        WHERE order_id = #{orderId}
+    </delete>
+
+</mapper>
