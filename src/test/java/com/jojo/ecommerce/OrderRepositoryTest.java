@@ -89,11 +89,11 @@ public class OrderRepositoryTest {
         CreateOrderRequest createOrderRequest = new CreateOrderRequest(1L,null,3,3000,productDtoList);
 
         // 주문 생성
-        Order order = new Order(createOrderRequest.getUserId());
+        Order order = new Order(createOrderRequest.userId());
         Order saved = repo.saveOrder(order);
 
         // 상품 주문정보 돌면서 주문 아이템 생성
-        for(ProductDto productDto : createOrderRequest.getProductDtoList()){
+        for(ProductDto productDto : createOrderRequest.productDtoList()){
             order.addOrderItem(new OrderItem(order.getOrderId(),productDto.getProductId(), productDto.getQauntity(), productDto.getProductPrice()));
         }
 

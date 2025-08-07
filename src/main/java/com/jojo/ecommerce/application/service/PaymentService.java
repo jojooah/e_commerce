@@ -22,7 +22,7 @@ public class PaymentService implements PaymentUseCase {
     @Override
     @Transactional
     public Payment pay(CreatePaymentRequest createPaymentRequest) {
-        Long orderId = createPaymentRequest.getOrderId();
+        Long orderId = createPaymentRequest.orderId();
 
         // 주문정보 가져오기
         Order order = orderRepo.findByOrderId(orderId);
@@ -31,8 +31,8 @@ public class PaymentService implements PaymentUseCase {
         int amount = order.calculateTotalPrice();
 
         // 쿠폰 있을경우
-        if (createPaymentRequest.getCouponId() != null) {
-            UserCoupon userCoupon = userCouponRepo.findByUserCouponId(createPaymentRequest.getUserId(), createPaymentRequest.getCouponId());
+        if (createPaymentRequest.couponId() != null) {
+            UserCoupon userCoupon = userCouponRepo.findByUserCouponId(createPaymentRequest.userId(), createPaymentRequest.couponId());
             Coupon coupon = couponRepo.findByCouponId(userCoupon.getCouponId());
 
             // 할인율 적용하여 금액 계산
@@ -45,7 +45,7 @@ public class PaymentService implements PaymentUseCase {
         }
 
         // 유저 포인트 차감
-        Point userPoint = pointRepo.findPointByUserId(createPaymentRequest.getUserId());
+        Point userPoint = pointRepo.findPointByUserId(createPaymentRequest.userId());
         Point deductedPoint = userPoint.minusPoint(amount);
         pointRepo.updatePoint(deductedPoint);
 
@@ -57,7 +57,7 @@ public class PaymentService implements PaymentUseCase {
             productRepo.updateProduct(product);
         }
 
-        Payment payment = new Payment(orderId, createPaymentRequest.getUserId(), createPaymentRequest.getCouponId(), createPaymentRequest.getPaymentMethod(), amount);
+        Payment payment = new Payment(orderId, createPaymentRequest.userId(), createPaymentRequest.couponId(), createPaymentRequest.paymentMethod(), amount);
 
         // 결제 완료처리
         payment.paymentCompleted();
