@@ -5,7 +5,7 @@
     <resultMap id="PaymentHistoryMap" type="com.jojo.ecommerce.domain.model.PaymentHistory">
         <id column="payment_history_id" property="paymentHistoryId"/>
         <result column="payment_id"          property="paymentId"/>
-        <result column="payment_status"      property="paymentStatus" javaType="com.jojo.ecommerce.domain.model.STATUS_TYPE" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result column="payment_status"      property="paymentStatus"/>
         <result column="reg_date"            property="regDate"/>
         <result column="upd_date"            property="updDate"/>
     </resultMap>
@@ -22,7 +22,7 @@
         )
     </insert>
 
-    <select id="selectByPaymentId" resultMap="PaymentHistoryMap" parameterType="long">
+    <select id="selectByPaymentId" resultMap="PaymentHistoryMap" parameterType="Long">
         SELECT
             payment_history_id,
             payment_id,

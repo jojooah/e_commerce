@@ -37,9 +37,9 @@ public interface OrderMapper {
     int insertOrderItem(OrderItem item);
 
     /**
-     * 주문상품 삭제
-     * @param orderId
+     * 주문상품 상태 변경
+     * @param item
      * @return
      */
-    int deleteItemsByOrderId(@Param("orderId") Long orderId);
+    int updateOrderItem(OrderItem item);
 }

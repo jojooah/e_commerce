@@ -20,6 +20,10 @@ public class Order extends Common {
 
     public void paymentCompleted() {
         this.paymentStatus = STATUS_TYPE.PAYMENT_COMPLETED;
+
+        for(OrderItem orderItem : orderItems) {
+            orderItem.setPaymentStatus(STATUS_TYPE.PAYMENT_COMPLETED);
+        }
     }
 
     public void paymentCanceled() {

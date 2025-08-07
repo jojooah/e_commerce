@@ -5,15 +5,15 @@ import com.jojo.ecommerce.application.dto.ProductDto;
 import com.jojo.ecommerce.application.port.out.*;
 import com.jojo.ecommerce.application.service.PaymentService;
 import com.jojo.ecommerce.domain.model.*;
+import com.jojo.ecommerce.domain.model.Order;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
+import static com.jojo.ecommerce.domain.model.STATUS_TYPE.PAYMENT_CANCELED;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SpringBootTest
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PaymentServiceIntegrationTest {
     @Autowired
     private PaymentService paymentService;
@@ -47,7 +48,7 @@ public class PaymentServiceIntegrationTest {
     private Coupon coupon;
     private List<ProductDto> productList;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         // 1) 상품 세팅
         apple = productRepo.save(new Product("사과", 10, 1000, 101));
@@ -111,7 +112,6 @@ public class PaymentServiceIntegrationTest {
     }
 
 
-    @Disabled
     @Test
     void cancelPayment_통합_테스트() {
         // 먼저 결제
@@ -133,11 +133,11 @@ public class PaymentServiceIntegrationTest {
         assertTrue(cancelResult);
 
         // a) 결제상태 & 주문 상태 취소 확인
-        assertEquals(STATUS_TYPE.PAYMENT_CANCELED,
+        assertEquals(PAYMENT_CANCELED,
                 paymentRepo.findByPaymentId(paymentId).getPaymentStatus());
 
-       // assertEquals(PAYMENT_CANCELED,
-      //          orderRepo.findByOrderId(order.getOrderId()).getPaymentStatus());
+       assertEquals(PAYMENT_CANCELED,
+                orderRepo.findByOrderId(order.getOrderId()).getPaymentStatus());
 
         // b) 재고 원복 확인
         assertEquals(10, productRepo.findProductById(apple.getProductId()).getStock());
