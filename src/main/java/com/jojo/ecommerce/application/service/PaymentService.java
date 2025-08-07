@@ -1,6 +1,7 @@
 package com.jojo.ecommerce.application.service;
 
 import com.jojo.ecommerce.application.dto.CreatePaymentRequest;
+import com.jojo.ecommerce.application.exception.AlreadyCompletedOrder;
 import com.jojo.ecommerce.application.port.in.PaymentUseCase;
 import com.jojo.ecommerce.application.port.out.*;
 import com.jojo.ecommerce.domain.model.*;
@@ -26,6 +27,8 @@ public class PaymentService implements PaymentUseCase {
 
         // 주문정보 가져오기
         Order order = orderRepo.findByOrderId(orderId);
+        if(order.getPaymentStatus().equals(STATUS_TYPE.PAYMENT_COMPLETED))
+            throw new AlreadyCompletedOrder();
 
         // 결제금액 계산
         int amount = order.calculateTotalPrice();
