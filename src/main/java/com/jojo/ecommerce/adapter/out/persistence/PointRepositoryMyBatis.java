@@ -32,11 +32,19 @@ public class PointRepositoryMyBatis implements PointRepositoryPort {
 
     @Override
     public Point findPointByUserId(Long userId) {
-        Point point = pointMapper.selectPointByUserId(userId);
-        if (ObjectUtils.isEmpty(point)) {
-            return new Point(userId, 0);
-        }
+        return pointMapper.selectPointByUserId(userId);
+    }
 
-        return point;
+    @Override
+    public void savePoint(Point point){
+        pointMapper.insertPoint(point);
+    }
+
+    @Override
+    public int findPointByUserIdAndRequestId(Long userId,String requestId) {
+        Point point = new Point();
+        point.setUserId(userId);
+        point.setRequestId(requestId);
+        return pointMapper.countPointByUserIdAndRequestId(point);
     }
 }
