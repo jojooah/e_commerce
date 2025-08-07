@@ -25,4 +25,9 @@ public interface PointMapper {
      * @return
      */
     int updatePoint(Point point);
+
+    /**
+     *  중복 포인트 충전내역 확인(중복확인)
+     */
+    int countPointByUserIdAndRequestId(Point point);
 }

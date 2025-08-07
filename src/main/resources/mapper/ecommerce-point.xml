@@ -7,6 +7,7 @@
         <id column="point_id"   property="pointId"/>
         <result column="user_id"    property="userId"/>
         <result column="point"      property="point"/>
+        <result column="request_id" property="requestId"/>
         <result column="reg_date"   property="regDate"/>
         <result column="upd_date"   property="updDate"/>
     </resultMap>
@@ -27,10 +28,12 @@
         INSERT INTO point (
             user_id
           , point
+          , request_id
           , reg_date
         ) VALUES (
             #{userId}
           , #{point}
+          , #{requestId}
           , NOW()
         )
     </insert>
@@ -39,8 +42,16 @@
         UPDATE point
         SET
             point = #{point}
+          , request_id = #{requestId}
           , upd_date = NOW()
         WHERE user_id = #{userId}
     </update>
+
+    <select id="countPointByUserIdAndRequestId" resultType="int" parameterType="com.jojo.ecommerce.domain.model.Point">
+        SELECT COUNT(1)
+        FROM point
+        WHERE user_id = #{userId}
+        AND request_id = #{requestId}
+    </select>
 
 </mapper>
