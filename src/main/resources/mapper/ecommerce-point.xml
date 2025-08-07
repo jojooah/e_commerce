@@ -20,6 +20,7 @@
           , upd_date
         FROM point
         WHERE user_id = #{userId}
+        FOR UPDATE
     </select>
 
     <insert id="insertPoint" parameterType="com.jojo.ecommerce.domain.model.Point" useGeneratedKeys="true" keyProperty="pointId">

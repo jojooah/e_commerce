@@ -22,19 +22,6 @@
         <collection property="orderItems" ofType="com.jojo.ecommerce.domain.model.OrderItem" resultMap="OrderItemResult"/>
     </resultMap>
 
-    <select id="selectItemsByOrderId" resultMap="OrderResult" parameterType="Long">
-        SELECT
-            order_item_id
-          , order_id
-          , product_id
-          , unit_price
-          , quantity
-          , reg_date
-          , upd_date
-        FROM order_item
-        WHERE order_id = #{orderId}
-    </select>
-
     <select id="selectOrderById" resultMap="OrderResult" parameterType="Long">
         SELECT o.order_id,
                o.user_id,
@@ -51,6 +38,7 @@
         FROM orders o
                  LEFT JOIN order_item i ON o.order_id = i.order_id
         WHERE o.order_id = #{orderId}
+        FOR UPDATE
     </select>
 
 
