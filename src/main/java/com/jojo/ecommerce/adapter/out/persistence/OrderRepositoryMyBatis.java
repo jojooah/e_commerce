@@ -1,16 +1,16 @@
 package com.jojo.ecommerce.adapter.out.persistence;
 
+import com.jojo.ecommerce.application.exception.AlreadyCompletedOrder;
 import com.jojo.ecommerce.application.exception.OrderNotFoundException;
 import com.jojo.ecommerce.application.port.out.OrderRepositoryPort;
 import com.jojo.ecommerce.domain.model.Order;
 import com.jojo.ecommerce.domain.model.OrderItem;
+import com.jojo.ecommerce.domain.model.STATUS_TYPE;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Primary
 @Repository
@@ -48,6 +48,7 @@ public class OrderRepositoryMyBatis implements OrderRepositoryPort {
     public Order findByOrderId(Long orderId) {
         Order order = mapper.selectOrderById(orderId);
         if (order == null) throw new OrderNotFoundException(orderId);
+        if(order.getPaymentStatus().equals(STATUS_TYPE.PAYMENT_COMPLETED)) throw new AlreadyCompletedOrder();
         return order;
     }
 
