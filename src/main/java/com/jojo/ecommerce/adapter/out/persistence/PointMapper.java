@@ -27,7 +27,14 @@ public interface PointMapper {
     int updatePoint(Point point);
 
     /**
-     *  중복 포인트 충전내역 확인(중복확인)
+     * 포인트 요청내역 저장
+     * @param point
      */
-    int countPointByUserIdAndRequestId(Point point);
+    void insertPointCharge(Point point);
+
+    /**
+     * 포인트 충전
+     * @param point
+     */
+    void upsertAndAddPoint(Point point);
 }

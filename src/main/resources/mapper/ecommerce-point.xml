@@ -21,7 +21,6 @@
           , upd_date
         FROM point
         WHERE user_id = #{userId}
-        FOR UPDATE
     </select>
 
     <insert id="insertPoint" parameterType="com.jojo.ecommerce.domain.model.Point" useGeneratedKeys="true" keyProperty="pointId">
@@ -53,5 +52,36 @@
         WHERE user_id = #{userId}
         AND request_id = #{requestId}
     </select>
+
+    <insert id="insertPointCharge" parameterType="com.jojo.ecommerce.domain.model.Point">
+        INSERT INTO point_charge (
+            user_id
+          , request_id
+          , point
+          , reg_date
+        )
+        VALUES (
+            #{userId}
+          , #{requestId}
+          , #{point}
+          , NOW()
+        )
+    </insert>
+
+    <update id="upsertAndAddPoint" parameterType="com.jojo.ecommerce.domain.model.Point">
+        INSERT INTO point (
+            user_id
+          , point
+          , reg_date
+        )
+        VALUES (
+            #{userId}
+          , #{point}
+          , NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+            point = point + VALUES(point)
+          , upd_date = NOW()
+    </update>
 
 </mapper>
