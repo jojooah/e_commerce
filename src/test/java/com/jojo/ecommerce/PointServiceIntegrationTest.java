@@ -10,9 +10,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 /**
  * 성공!
@@ -26,7 +33,16 @@ public class PointServiceIntegrationTest {
     @Autowired
     private PointRepositoryPort pointRepo;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private final Long userId = 777L;
+
+    @BeforeEach
+    void cleanTables() {
+        jdbcTemplate.execute("TRUNCATE TABLE point_charge");
+        jdbcTemplate.execute("TRUNCATE TABLE point");
+    }
 
     @Test
     void charge_포인트_정상_충전() {
@@ -71,6 +87,95 @@ public class PointServiceIntegrationTest {
         assertThrows(DuplicateRequestException.class,
                 () -> pointService.chargePoint(duplicate),
                 "동일한 requestId로 중복 충전 들어오면 에외 발생해야 한다");
+    }
+
+    @Test
+    void 동시성_중복_requestId_한번만_성공() throws Exception     {
+        // given
+        int threads = 20;
+        int amount = 300;
+        String sameRequestId = "1234";
+
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        CountDownLatch ready = new CountDownLatch(threads);
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(threads);
+
+        AtomicInteger success = new AtomicInteger();
+        AtomicInteger duplicateFails = new AtomicInteger();
+        List<Throwable> unexpected = new CopyOnWriteArrayList<>();
+
+        for (int i = 0; i < threads; i++) {
+            executor.submit(() -> {
+                ready.countDown();
+                try {
+                    start.await();
+                    pointService.chargePoint(new CreatePointChargeRequest(new Point(userId, amount), sameRequestId));
+                    success.incrementAndGet();
+                } catch (DuplicateRequestException e) {
+                    duplicateFails.incrementAndGet();
+                } catch (Throwable t) {
+                    unexpected.add(t);
+                } finally {
+                    done.countDown();
+                }
+            });
+        }
+
+        // 모든 스레드 준비될 때까지 대기 후 동시에 시작
+        ready.await(5, TimeUnit.SECONDS);
+        start.countDown();
+        done.await(10, TimeUnit.SECONDS);
+        executor.shutdownNow();
+
+        // then
+
+        assertThat(success.get()).as("중복 requestId는 단 1건만 성공").isEqualTo(1);
+        assertThat(duplicateFails.get()).as("나머지는 DuplicateRequestException 발생").isEqualTo(threads - 1);
+
+        Point saved = pointRepo.findPointByUserId(userId);
+        assertThat(saved).isNotNull();
+        assertThat(saved.getPoint()).as("최종 잔액은 한 번만 반영되어야 함").isEqualTo(amount);
+    }
+
+    @Test
+    void 동시성_서로다른_requestId_모두_성공하고_잔액누적() throws Exception {
+        // given
+        int threads = 30;
+        int amount = 100;
+
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        CountDownLatch ready = new CountDownLatch(threads);
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(threads);
+
+        List<Throwable> unexpected = new CopyOnWriteArrayList<>();
+
+        for (int i = 0; i < threads; i++) {
+            final int idx = i;
+            executor.submit(() -> {
+                ready.countDown();
+                try {
+                    start.await();
+                    String requestId = "REQ-" + idx; // 모두 다른 requestId
+                    pointService.chargePoint(new CreatePointChargeRequest(new Point(userId, amount), requestId));
+                } catch (Throwable t) {
+                    unexpected.add(t);
+                } finally {
+                    done.countDown();
+                }
+            });
+        }
+
+        ready.await(5, TimeUnit.SECONDS);
+        start.countDown();
+        done.await(10, TimeUnit.SECONDS);
+        executor.shutdownNow();
+
+        // then
+        Point saved = pointRepo.findPointByUserId(userId);
+        assertThat(saved).isNotNull();
+        assertThat(saved.getPoint()).as("모든 충전이 누적되어야 함").isEqualTo(threads * amount);
     }
 
 }
