@@ -29,13 +29,15 @@ public class PointRepositoryMap implements PointRepositoryPort {
     }
 
     @Override
-    public void savePoint(Point point) {
-        repository.put(point.getUserId(),point);
+    public void saveOrUpdatePoint(Point point) {
+       if(repository.containsKey(point.getUserId())){
+           repository.get(point.getUserId());
+       }
+        repository.put(point.getUserId(), point);
+
     }
 
     @Override
-    public int findPointByUserIdAndRequestId(Long userId, String requestId) {
-        return 0;
+    public void savePointCharge(Long userId,String requestId, int amount) {
     }
-
 }

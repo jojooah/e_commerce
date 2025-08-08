@@ -36,15 +36,15 @@ public class PointRepositoryMyBatis implements PointRepositoryPort {
     }
 
     @Override
-    public void savePoint(Point point){
-        pointMapper.insertPoint(point);
+    public void saveOrUpdatePoint(Point point) {
+        pointMapper.upsertAndAddPoint(point);
     }
 
     @Override
-    public int findPointByUserIdAndRequestId(Long userId,String requestId) {
-        Point point = new Point();
-        point.setUserId(userId);
+    public void savePointCharge(Long userId,String requestId,int amount){
+        Point point = new Point(userId,amount);
         point.setRequestId(requestId);
-        return pointMapper.countPointByUserIdAndRequestId(point);
+
+        pointMapper.insertPointCharge(point);
     }
 }
