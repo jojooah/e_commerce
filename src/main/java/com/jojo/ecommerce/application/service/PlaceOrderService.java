@@ -17,11 +17,11 @@ public class PlaceOrderService implements OrderUseCase {
     @Override
     public Order placeOrder(CreateOrderRequest createOrderRequest){
         // 주문 생성
-        Order order = new Order(createOrderRequest.getUserId());
+        Order order = new Order(createOrderRequest.userId());
         Order saved = orderRepositoryPort.saveOrder(order);
 
         // 상품 주문정보 돌면서 주문 아이템 생성
-        for(ProductDto productDto : createOrderRequest.getProductDtoList()){
+        for(ProductDto productDto : createOrderRequest.productDtoList()){
             order.addOrderItem(new OrderItem(order.getOrderId(),productDto.getProductId(), productDto.getQauntity(),productDto.getProductPrice()));
         }
 

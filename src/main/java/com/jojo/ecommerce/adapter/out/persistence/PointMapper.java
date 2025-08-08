@@ -25,4 +25,16 @@ public interface PointMapper {
      * @return
      */
     int updatePoint(Point point);
+
+    /**
+     * 포인트 요청내역 저장
+     * @param point
+     */
+    void insertPointCharge(Point point);
+
+    /**
+     * 포인트 충전
+     * @param point
+     */
+    void upsertAndAddPoint(Point point);
 }

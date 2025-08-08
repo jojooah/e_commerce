@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Primary
 @Repository
@@ -33,15 +31,14 @@ public class OrderRepositoryMyBatis implements OrderRepositoryPort {
     @Override
     @Transactional
     public Order updateOrder(Order order) {
-        int cnt = mapper.updateOrder(order);
+            int cnt = mapper.updateOrder(order);
         if (cnt == 0) throw new OrderNotFoundException(order.getOrderId());
 
-        // 기존 items 전부 삭제 후, 재삽입
-        mapper.deleteItemsByOrderId(order.getOrderId());
         for (OrderItem item : order.getOrderItems()) {
             item.setOrderId(order.getOrderId());
-            mapper.insertOrderItem(item);
+            mapper.updateOrderItem(item);
         }
+
         return order;
     }
 

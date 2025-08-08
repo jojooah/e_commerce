@@ -2,16 +2,21 @@ package com.jojo.ecommerce.domain.model;
 
 import com.jojo.ecommerce.application.exception.InsufficientPointException;
 import com.jojo.ecommerce.domain.Common;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Point extends Common {
     private Long pointId;
     private Long userId;
     private int point; // 포인트 총액
+    private String requestId;
 
     public Point(Long userId, int point) {
         this.userId = userId;

@@ -2,18 +2,24 @@ package com.jojo.ecommerce;
 
 import com.jojo.ecommerce.application.dto.CreatePaymentRequest;
 import com.jojo.ecommerce.application.dto.ProductDto;
+import com.jojo.ecommerce.application.exception.AlreadyCompletedOrder;
 import com.jojo.ecommerce.application.port.out.*;
 import com.jojo.ecommerce.application.service.PaymentService;
 import com.jojo.ecommerce.domain.model.*;
+import com.jojo.ecommerce.domain.model.Order;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import static com.jojo.ecommerce.domain.model.STATUS_TYPE.PAYMENT_CANCELED;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -22,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SpringBootTest
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PaymentServiceIntegrationTest {
     @Autowired
     private PaymentService paymentService;
@@ -46,8 +53,9 @@ public class PaymentServiceIntegrationTest {
     private UserCoupon userCoupon;
     private Coupon coupon;
     private List<ProductDto> productList;
+    CreatePaymentRequest req;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         // 1) 상품 세팅
         apple = productRepo.save(new Product("사과", 10, 1000, 101));
@@ -67,12 +75,8 @@ public class PaymentServiceIntegrationTest {
         // 4) 쿠폰 세팅 (10% 할인)
         coupon = couponRepo.saveCoupon(new Coupon("CODE123", "행사할인쿠폰", 0.1));
         userCoupon = userCouponRepo.saveCoupon(new UserCoupon(42L, coupon.getCouponId()));
-    }
 
-    @Test
-    void pay_통합_테스트() {
-        // given
-        CreatePaymentRequest req = new CreatePaymentRequest(
+        req = new CreatePaymentRequest(
                 42L,
                 coupon.getCouponId(),
                 order.getOrderId(),
@@ -80,7 +84,10 @@ public class PaymentServiceIntegrationTest {
                 "CARD",
                 3500
         );
+    }
 
+    @Test
+    void pay_통합_테스트() {
         // when
         Payment payment = paymentService.pay(req);
 
@@ -111,7 +118,6 @@ public class PaymentServiceIntegrationTest {
     }
 
 
-    @Disabled
     @Test
     void cancelPayment_통합_테스트() {
         // 먼저 결제
@@ -133,11 +139,11 @@ public class PaymentServiceIntegrationTest {
         assertTrue(cancelResult);
 
         // a) 결제상태 & 주문 상태 취소 확인
-        assertEquals(STATUS_TYPE.PAYMENT_CANCELED,
+        assertEquals(PAYMENT_CANCELED,
                 paymentRepo.findByPaymentId(paymentId).getPaymentStatus());
 
-       // assertEquals(PAYMENT_CANCELED,
-      //          orderRepo.findByOrderId(order.getOrderId()).getPaymentStatus());
+       assertEquals(PAYMENT_CANCELED,
+                orderRepo.findByOrderId(order.getOrderId()).getPaymentStatus());
 
         // b) 재고 원복 확인
         assertEquals(10, productRepo.findProductById(apple.getProductId()).getStock());
@@ -152,4 +158,35 @@ public class PaymentServiceIntegrationTest {
         // e) 이력 두 건(결제, 취소) 확인
         assertEquals(2, historyRepo.findByPaymentId(find.getPaymentId()).size());
     }
+
+    @Test
+    void 동시에_여러건_결제시_하나만_성공해야한다() throws InterruptedException {
+        int threadCount = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                try {
+                    paymentService.pay(req); // 결제 시도 메서드
+                } catch (AlreadyCompletedOrder e) {
+                    exceptions.add(e); // 기대하는 예외
+                } catch (Exception e) {
+                    exceptions.add(new RuntimeException("Unexpected: " + e.getMessage()));
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // 검증
+        assertEquals(threadCount - 1, exceptions.size(), "예외는 9번 발생해야 함");
+        boolean allMatch = exceptions.stream().allMatch(e -> e instanceof AlreadyCompletedOrder);
+        assertTrue(allMatch, "모든 예외는 AlreadyCompletedOrder 여야 함");
+
+    }
+
 }

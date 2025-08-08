@@ -9,4 +9,10 @@ public interface PointRepositoryPort {
     // 유저 포인트 조회
     Point findPointByUserId(Long userId);
 
+    // 유저 포인트 요청 저장(중복 확인용)
+    void savePointCharge(Long userId,String requestId,int amount);
+
+    // 포인트 충전
+    void saveOrUpdatePoint(Point point);
+
 }

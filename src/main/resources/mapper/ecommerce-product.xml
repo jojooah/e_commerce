@@ -24,6 +24,7 @@
           , upd_date
         FROM product
         WHERE product_id = #{productId}
+        FOR UPDATE
     </select>
 
     <select id="selectAllProducts" resultMap="ProductMap">
