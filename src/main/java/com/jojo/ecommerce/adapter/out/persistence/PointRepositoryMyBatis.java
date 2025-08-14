@@ -4,6 +4,7 @@ import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
 import com.jojo.ecommerce.domain.model.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ObjectUtils;
 
@@ -45,6 +46,11 @@ public class PointRepositoryMyBatis implements PointRepositoryPort {
         Point point = new Point(userId,amount);
         point.setRequestId(requestId);
 
-        pointMapper.insertPointCharge(point);
+        try {
+            // (user_id, request_id) UNIQUE
+            pointMapper.insertPointCharge(point);
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateKeyException("이미 처리된 요청입니다");
+        }
     }
 }
