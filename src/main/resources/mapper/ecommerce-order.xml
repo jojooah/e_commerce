@@ -45,10 +45,12 @@
     <insert id="insertOrder" parameterType="com.jojo.ecommerce.domain.model.Order" useGeneratedKeys="true" keyProperty="orderId">
         INSERT INTO orders(
             user_id
+          , request_id
           , payment_status
           , reg_date
         ) VALUES (
             #{userId}
+          , #{requestId}
           , #{paymentStatus}
           , NOW()
         )

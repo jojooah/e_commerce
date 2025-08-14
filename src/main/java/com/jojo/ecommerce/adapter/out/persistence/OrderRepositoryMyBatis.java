@@ -6,6 +6,7 @@ import com.jojo.ecommerce.domain.model.Order;
 import com.jojo.ecommerce.domain.model.OrderItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +20,19 @@ public class OrderRepositoryMyBatis implements OrderRepositoryPort {
     @Override
     @Transactional
     public Order saveOrder(Order order) {
-        mapper.insertOrder(order);
+        try{
+            // 유니크키 제약조건
+            // requestId, userId
+            mapper.insertOrder(order);
 
-        for (OrderItem item : order.getOrderItems()) {
-            item.setOrderId(order.getOrderId());
-            mapper.insertOrderItem(item);
+            for (OrderItem item : order.getOrderItems()) {
+                item.setOrderId(order.getOrderId());
+                mapper.insertOrderItem(item);
+            }
+        } catch (DuplicateKeyException e){
+            throw new DuplicateKeyException("이미 처리된 주문입니다.");
         }
+
         return order;
     }
 
