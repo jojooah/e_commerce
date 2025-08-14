@@ -4,7 +4,7 @@ import com.jojo.ecommerce.domain.model.Point;
 
 public record CreatePointChargeRequest(
         Point point,
-        String RequestId
+        String requestId
 
 ) {
 }

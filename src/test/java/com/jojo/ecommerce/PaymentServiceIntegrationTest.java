@@ -3,6 +3,7 @@ package com.jojo.ecommerce;
 import com.jojo.ecommerce.application.dto.CreatePaymentRequest;
 import com.jojo.ecommerce.application.dto.ProductDto;
 import com.jojo.ecommerce.application.exception.AlreadyCompletedOrder;
+import com.jojo.ecommerce.application.port.in.PaymentUseCase;
 import com.jojo.ecommerce.application.port.out.*;
 import com.jojo.ecommerce.application.service.PaymentService;
 import com.jojo.ecommerce.domain.model.*;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PaymentServiceIntegrationTest {
     @Autowired
-    private PaymentService paymentService;
+    private PaymentUseCase paymentService;
     @Autowired
     private OrderRepositoryPort orderRepo;
     @Autowired

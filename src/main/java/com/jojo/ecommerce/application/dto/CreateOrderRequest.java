@@ -9,6 +9,7 @@ import java.util.List;
 public record CreateOrderRequest (
      Long userId,
      Long couponId,
+     String requestId,
      int totalQuantity,
      int totalPrice,
      List<ProductDto> productDtoList

@@ -1,15 +1,15 @@
 package com.jojo.ecommerce;
 
 import com.jojo.ecommerce.application.dto.CreatePointChargeRequest;
+import com.jojo.ecommerce.application.port.in.PointUseCase;
 import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
-import com.jojo.ecommerce.application.service.PointService;
 import com.jojo.ecommerce.domain.model.Point;
-import com.sun.jdi.request.DuplicateRequestException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
 public class PointServiceIntegrationTest {
     @Autowired
-    private PointService pointService;
+    private PointUseCase pointService;
 
     @Autowired
     private PointRepositoryPort pointRepo;
@@ -84,7 +84,7 @@ public class PointServiceIntegrationTest {
 
         // when & then: 동일 requestId로 재요청 시 예외 발생
         CreatePointChargeRequest duplicate = new CreatePointChargeRequest(new Point(userId, 300), "12345");
-        assertThrows(DuplicateRequestException.class,
+        assertThrows(DuplicateKeyException.class,
                 () -> pointService.chargePoint(duplicate),
                 "동일한 requestId로 중복 충전 들어오면 에외 발생해야 한다");
     }
@@ -112,7 +112,7 @@ public class PointServiceIntegrationTest {
                     start.await();
                     pointService.chargePoint(new CreatePointChargeRequest(new Point(userId, amount), sameRequestId));
                     success.incrementAndGet();
-                } catch (DuplicateRequestException e) {
+                } catch (DuplicateKeyException e) {
                     duplicateFails.incrementAndGet();
                 } catch (Throwable t) {
                     unexpected.add(t);

@@ -1,7 +1,7 @@
 package com.jojo.ecommerce.application.service;
 
-import com.jojo.ecommerce.adapter.out.persistence.PointMapper;
 import com.jojo.ecommerce.application.dto.CreatePointChargeRequest;
+import com.jojo.ecommerce.application.port.in.PointUseCase;
 import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
 import com.jojo.ecommerce.domain.model.Point;
 import com.sun.jdi.request.DuplicateRequestException;
@@ -12,14 +12,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PointService {
+public class PointService implements PointUseCase {
     private final PointRepositoryPort pointRepo;
 
     @Transactional
+    @Override
     public Point chargePoint(CreatePointChargeRequest req) {
         Long userId = req.point().getUserId();
         int amount = req.point().getPoint();
-        String requestId = req.RequestId();
+        String requestId = req.requestId();
 
         try {
             // (user_id, request_id) UNIQUE
