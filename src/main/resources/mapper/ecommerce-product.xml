@@ -57,12 +57,9 @@
 
     <update id="updateProduct" parameterType="com.jojo.ecommerce.domain.model.Product">
         UPDATE product
-        SET product_name  = #{productName}
-          , stock         = #{stock}
-          , product_price = #{productPrice}
-          , product_code  = #{productCode}
-          , upd_date      = NOW()
-        WHERE product_id    = #{productId}
+        SET
+           stock = #{stock}
+        WHERE product_id = #{productId}
     </update>
 
 </mapper>
