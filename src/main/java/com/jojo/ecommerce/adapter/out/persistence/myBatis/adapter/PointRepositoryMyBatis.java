@@ -1,5 +1,6 @@
-package com.jojo.ecommerce.adapter.out.persistence;
+package com.jojo.ecommerce.adapter.out.persistence.myBatis.adapter;
 
+import com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.PointMapper;
 import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
 import com.jojo.ecommerce.domain.model.Point;
 import lombok.RequiredArgsConstructor;

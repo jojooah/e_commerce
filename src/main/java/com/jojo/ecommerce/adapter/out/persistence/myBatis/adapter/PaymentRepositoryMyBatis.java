@@ -1,5 +1,6 @@
-package com.jojo.ecommerce.adapter.out.persistence;
+package com.jojo.ecommerce.adapter.out.persistence.myBatis.adapter;
 
+import com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.PaymentMapper;
 import com.jojo.ecommerce.application.exception.PaymentNotFoundException;
 import com.jojo.ecommerce.application.port.out.PaymentRepositoryPort;
 import com.jojo.ecommerce.domain.model.Payment;

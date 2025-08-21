@@ -1,4 +1,4 @@
-package com.jojo.ecommerce.adapter.out.persistence;
+package com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper;
 
 import com.jojo.ecommerce.domain.model.UserCoupon;
 import org.apache.ibatis.annotations.Mapper;

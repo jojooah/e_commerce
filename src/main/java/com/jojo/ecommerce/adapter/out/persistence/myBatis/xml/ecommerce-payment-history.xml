@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.PaymentHistoryMapper">
+<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.PaymentHistoryMapper">
 
     <resultMap id="PaymentHistoryMap" type="com.jojo.ecommerce.domain.model.PaymentHistory">
         <id column="payment_history_id" property="paymentHistoryId"/>

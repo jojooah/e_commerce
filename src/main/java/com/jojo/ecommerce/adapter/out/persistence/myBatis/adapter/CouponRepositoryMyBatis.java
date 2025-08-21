@@ -1,6 +1,7 @@
-package com.jojo.ecommerce.adapter.out.persistence;
+package com.jojo.ecommerce.adapter.out.persistence.myBatis.adapter;
 
 
+import com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.CouponMapper;
 import com.jojo.ecommerce.application.exception.CouponNotFoundException;
 import com.jojo.ecommerce.application.port.out.CouponRepositoryPort;
 import com.jojo.ecommerce.domain.model.Coupon;

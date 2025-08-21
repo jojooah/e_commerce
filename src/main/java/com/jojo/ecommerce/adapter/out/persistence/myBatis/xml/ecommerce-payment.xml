@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.PaymentMapper">
+<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.PaymentMapper">
     <resultMap id="PaymentResult" type="com.jojo.ecommerce.domain.model.Payment">
         <id column="payment_id"     property="paymentId"/>
         <result column="order_id"       property="orderId"/>

@@ -1,5 +1,6 @@
-package com.jojo.ecommerce.adapter.out.persistence;
+package com.jojo.ecommerce.adapter.out.persistence.myBatis.adapter;
 
+import com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.PaymentHistoryMapper;
 import com.jojo.ecommerce.application.port.out.PaymentHistoryRepositoryPort;
 import com.jojo.ecommerce.domain.model.PaymentHistory;
 import lombok.RequiredArgsConstructor;

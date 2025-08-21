@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.PointMapper">
+<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.PointMapper">
 
     <resultMap id="PointMap" type="com.jojo.ecommerce.domain.model.Point">
         <id column="point_id"   property="pointId"/>
@@ -80,7 +80,7 @@
           , NOW()
         )
         ON DUPLICATE KEY UPDATE
-            point = point + VALUES(point)
+            point = point + #{point}
           , upd_date = NOW()
     </update>
 

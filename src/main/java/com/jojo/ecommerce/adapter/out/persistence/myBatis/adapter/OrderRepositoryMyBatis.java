@@ -1,5 +1,6 @@
-package com.jojo.ecommerce.adapter.out.persistence;
+package com.jojo.ecommerce.adapter.out.persistence.myBatis.adapter;
 
+import com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.OrderMapper;
 import com.jojo.ecommerce.application.exception.OrderNotFoundException;
 import com.jojo.ecommerce.application.port.out.OrderRepositoryPort;
 import com.jojo.ecommerce.domain.model.Order;
