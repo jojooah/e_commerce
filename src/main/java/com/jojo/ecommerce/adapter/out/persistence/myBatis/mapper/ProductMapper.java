@@ -24,10 +24,10 @@ public interface ProductMapper {
 
     /**
      * 상품등록
+     *
      * @param product
-     * @return
      */
-    int insertProduct(Product product);
+    void insertProduct(Product product);
 
     /**
      * 상품 수정
