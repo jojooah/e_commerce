@@ -1,11 +1,10 @@
 package com.jojo.ecommerce;
 
-import com.jojo.ecommerce.application.dto.CreatePaymentRequest;
-import com.jojo.ecommerce.application.dto.ProductDto;
+import com.jojo.ecommerce.application.dto.PaymentRequest;
+import com.jojo.ecommerce.application.dto.ProductInfo;
 import com.jojo.ecommerce.application.exception.AlreadyCompletedOrder;
 import com.jojo.ecommerce.application.port.in.PaymentUseCase;
 import com.jojo.ecommerce.application.port.out.*;
-import com.jojo.ecommerce.application.service.PaymentService;
 import com.jojo.ecommerce.domain.model.*;
 import com.jojo.ecommerce.domain.model.Order;
 import jakarta.transaction.Transactional;
@@ -53,8 +52,8 @@ public class PaymentServiceIntegrationTest {
     private Point point;
     private UserCoupon userCoupon;
     private Coupon coupon;
-    private List<ProductDto> productList;
-    CreatePaymentRequest req;
+    private List<ProductInfo> productList;
+    PaymentRequest req;
 
     @BeforeAll
     void setUp() {
@@ -62,12 +61,13 @@ public class PaymentServiceIntegrationTest {
         apple = productRepo.save(new Product("사과", 10, 1000, 101));
         banana = productRepo.save(new Product("바나나", 5, 1500, 102));
 
-        productList = List.of(new ProductDto(apple.getProductId(), apple.getProductName(), 2, apple.getProductPrice(), apple.getStock()));
+        productList = List.of(new ProductInfo(apple.getProductId(), apple.getProductName(), 2, apple.getProductPrice(), apple.getStock()));
 
         // 2) 주문 세팅(apple 2개, banana 1개)
         order = new Order(42L);
         order.addOrderItem(new OrderItem(apple.getProductId(), 2, apple.getProductPrice()));
         order.addOrderItem(new OrderItem(banana.getProductId(), 1, banana.getProductPrice()));
+        order.setRequestId("REQ-1234");
         order = orderRepo.saveOrder(order);
 
         // 3) 포인트 세팅 (42번 유저 5000원)
@@ -77,7 +77,7 @@ public class PaymentServiceIntegrationTest {
         coupon = couponRepo.saveCoupon(new Coupon("CODE123", "행사할인쿠폰", 0.1));
         userCoupon = userCouponRepo.saveCoupon(new UserCoupon(42L, coupon.getCouponId()));
 
-        req = new CreatePaymentRequest(
+        req = new PaymentRequest(
                 42L,
                 coupon.getCouponId(),
                 order.getOrderId(),
@@ -122,7 +122,7 @@ public class PaymentServiceIntegrationTest {
     @Test
     void cancelPayment_통합_테스트() {
         // 먼저 결제
-        CreatePaymentRequest req = new CreatePaymentRequest(
+        PaymentRequest req = new PaymentRequest(
                 42L,
                 coupon.getCouponId(),
                 order.getOrderId(),

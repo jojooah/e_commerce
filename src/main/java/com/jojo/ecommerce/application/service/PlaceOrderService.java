@@ -1,7 +1,7 @@
 package com.jojo.ecommerce.application.service;
 
-import com.jojo.ecommerce.application.dto.CreateOrderRequest;
-import com.jojo.ecommerce.application.dto.ProductDto;
+import com.jojo.ecommerce.application.dto.ProductInfo;
+import com.jojo.ecommerce.application.dto.ProductOrderRequest;
 import com.jojo.ecommerce.application.port.in.OrderUseCase;
 import com.jojo.ecommerce.application.port.out.OrderRepositoryPort;
 import com.jojo.ecommerce.domain.model.Order;
@@ -15,14 +15,14 @@ public class PlaceOrderService implements OrderUseCase {
     private final OrderRepositoryPort orderRepositoryPort;
 
     @Override
-    public Order placeOrder(CreateOrderRequest createOrderRequest){
+    public Order placeOrder(ProductOrderRequest productOrderRequest){
         // 주문 생성
-        Order order = new Order(createOrderRequest.userId());
-        order.setRequestId(createOrderRequest.requestId());
+        Order order = new Order(productOrderRequest.userId());
+        order.setRequestId(productOrderRequest.requestId());
 
         // 상품 주문정보 돌면서 주문 아이템 생성
-        for(ProductDto productDto : createOrderRequest.productDtoList()){
-            order.addOrderItem(new OrderItem(order.getOrderId(),productDto.getProductId(), productDto.getQauntity(),productDto.getProductPrice()));
+        for(ProductInfo productInfo : productOrderRequest.productDtoList()){
+            order.addOrderItem(new OrderItem(order.getOrderId(),productInfo.productId(), productInfo.qauntity(),productInfo.productPrice()));
         }
 
         // 주문 저장

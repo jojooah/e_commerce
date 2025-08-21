@@ -1,6 +1,6 @@
 package com.jojo.ecommerce.application.service;
 
-import com.jojo.ecommerce.application.dto.CreatePointChargeRequest;
+import com.jojo.ecommerce.application.dto.PointChargeRequest;
 import com.jojo.ecommerce.application.port.in.PointUseCase;
 import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
 import com.jojo.ecommerce.domain.model.Point;
@@ -17,7 +17,7 @@ public class PointService implements PointUseCase {
 
     @Transactional
     @Override
-    public Point chargePoint(CreatePointChargeRequest req) {
+    public Point chargePoint(PointChargeRequest req) {
         Long userId = req.point().getUserId();
         int amount = req.point().getPoint();
         String requestId = req.requestId();

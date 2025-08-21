@@ -1,12 +1,13 @@
 package com.jojo.ecommerce.application.port.in;
 
-import com.jojo.ecommerce.application.dto.CreateOrderRequest;
+
+import com.jojo.ecommerce.application.dto.ProductOrderRequest;
 import com.jojo.ecommerce.domain.model.Order;
 
 public interface OrderUseCase {
 
     // 주문하기
-    Order placeOrder(CreateOrderRequest createOrderRequest);
+    Order placeOrder(ProductOrderRequest productOrderRequest);
 
     // 주문취소
     Order cancelOrder(Long orderId);
