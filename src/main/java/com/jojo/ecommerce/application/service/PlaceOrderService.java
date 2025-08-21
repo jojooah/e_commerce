@@ -18,13 +18,15 @@ public class PlaceOrderService implements OrderUseCase {
     public Order placeOrder(CreateOrderRequest createOrderRequest){
         // 주문 생성
         Order order = new Order(createOrderRequest.userId());
-        Order saved = orderRepositoryPort.saveOrder(order);
+        order.setRequestId(createOrderRequest.requestId());
 
         // 상품 주문정보 돌면서 주문 아이템 생성
         for(ProductDto productDto : createOrderRequest.productDtoList()){
             order.addOrderItem(new OrderItem(order.getOrderId(),productDto.getProductId(), productDto.getQauntity(),productDto.getProductPrice()));
         }
 
+        // 주문 저장
+        // [request_id, user_id] 유니크키
         return orderRepositoryPort.saveOrder(order);
     }
 

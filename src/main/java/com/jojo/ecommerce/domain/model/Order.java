@@ -11,6 +11,7 @@ import java.util.List;
 public class Order extends Common {
     private Long orderId;
     private Long userId;
+    private String requestId;
     private STATUS_TYPE paymentStatus = STATUS_TYPE.PAYMENT_PENDING;
     private List<OrderItem> orderItems = new ArrayList<OrderItem>();
 

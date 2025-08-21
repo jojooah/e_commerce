@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.PaymentMapper">
+    <resultMap id="PaymentResult" type="com.jojo.ecommerce.domain.model.Payment">
+        <id column="payment_id"     property="paymentId"/>
+        <result column="order_id"       property="orderId"/>
+        <result column="user_id"        property="userId"/>
+        <result column="coupon_id"      property="couponId"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="payment_price"  property="paymentPrice"/>
+        <result column="payment_status" property="paymentStatus"/>
+        <result column="reg_date"       property="regDate"/>
+        <result column="upd_date"       property="updDate"/>
+    </resultMap>
+
+    <select id="selectPaymentById" resultMap="PaymentResult" parameterType="long">
+        SELECT
+            payment_id
+          , order_id
+          , user_id
+          , coupon_id
+          , payment_method
+          , payment_price
+          , payment_status
+          , reg_date
+          , upd_date
+        FROM payment
+        WHERE payment_id = #{paymentId}
+    </select>
+
+    <insert id="insertPayment" parameterType="com.jojo.ecommerce.domain.model.Payment" useGeneratedKeys="true" keyProperty="paymentId">
+        INSERT INTO payment (
+            order_id
+            ,user_id
+            ,coupon_id
+            ,payment_method
+            ,payment_price
+            ,payment_status
+            ,reg_date
+        ) VALUES (
+            #{orderId}
+           , #{userId}
+           , #{couponId}
+           , #{paymentMethod}
+           , #{paymentPrice}
+           , #{paymentStatus}
+           , NOW()
+         )
+    </insert>
+
+    <update id="updatePayment" parameterType="com.jojo.ecommerce.domain.model.Payment">
+        UPDATE payment
+        SET
+            payment_status = #{paymentStatus}
+          , upd_date       = NOW()
+        WHERE payment_id = #{paymentId}
+    </update>
+
+</mapper>

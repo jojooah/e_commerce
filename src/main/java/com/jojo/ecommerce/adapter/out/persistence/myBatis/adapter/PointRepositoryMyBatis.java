@@ -1,0 +1,57 @@
+package com.jojo.ecommerce.adapter.out.persistence.myBatis.adapter;
+
+import com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.PointMapper;
+import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
+import com.jojo.ecommerce.domain.model.Point;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
+
+/**
+ * myBatis어답터 구현
+ */
+@Primary // 이거 붙여줘야 이 어답터를 사용.
+@Repository
+@RequiredArgsConstructor
+public class PointRepositoryMyBatis implements PointRepositoryPort {
+    private final PointMapper pointMapper;
+
+    @Override
+    public Point updatePoint(Point point) {
+        Point savedPoint = pointMapper.selectPointByUserId(point.getUserId());
+
+        if (ObjectUtils.isEmpty(savedPoint)) {
+             pointMapper.insertPoint(point);
+             return point;
+        }
+
+         pointMapper.updatePoint(point);
+        return point;
+
+    }
+
+    @Override
+    public Point findPointByUserId(Long userId) {
+        return pointMapper.selectPointByUserId(userId);
+    }
+
+    @Override
+    public void saveOrUpdatePoint(Point point) {
+        pointMapper.upsertAndAddPoint(point);
+    }
+
+    @Override
+    public void savePointCharge(Long userId,String requestId,int amount){
+        Point point = new Point(userId,amount);
+        point.setRequestId(requestId);
+
+        try {
+            // (user_id, request_id) UNIQUE
+            pointMapper.insertPointCharge(point);
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateKeyException("이미 처리된 요청입니다");
+        }
+    }
+}
