@@ -1,6 +1,6 @@
 package com.jojo.ecommerce.application.service;
 
-import com.jojo.ecommerce.application.dto.ProductDto;
+import com.jojo.ecommerce.application.dto.ProductResponse;
 import com.jojo.ecommerce.application.port.in.ProductReadUseCase;
 import com.jojo.ecommerce.application.port.out.ProductRepositoryPort;
 import com.jojo.ecommerce.domain.model.Product;
@@ -20,17 +20,17 @@ public class ProductReadService implements ProductReadUseCase {
 
     private final ProductRepositoryPort productRepositoryPort;
 
-    public ProductDto findProductById(long productId){
+    public ProductResponse findProductById(long productId){
         Product product = productRepositoryPort.findProductById(productId);
-        return ProductDto.of(product);
+        return ProductResponse.of(product);
     }
 
     @Override
-    public List<ProductDto> findAllProducts() {
+    public List<ProductResponse> findAllProducts() {
         List<Product> products = productRepositoryPort.findAllProducts();
         return products.stream()
-                .map(ProductDto::of)
-                .collect(Collectors.toList());
+                .map(ProductResponse::of)
+                .toList();
     }
 
 }

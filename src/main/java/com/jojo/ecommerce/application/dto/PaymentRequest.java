@@ -7,11 +7,11 @@ import java.util.List;
  * 사용자 요청 객체
  */
 
-public record CreatePaymentRequest(
+public record PaymentRequest(
     Long userId,
     Long couponId,
     Long orderId,
-    List<ProductDto> productDtoList,
+    List<ProductInfo> productInfoList,
     String paymentMethod,
     int paymentPrice
 ){ }

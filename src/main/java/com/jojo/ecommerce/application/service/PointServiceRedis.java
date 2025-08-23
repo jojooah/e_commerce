@@ -1,6 +1,6 @@
 package com.jojo.ecommerce.application.service;
 
-import com.jojo.ecommerce.application.dto.CreatePointChargeRequest;
+import com.jojo.ecommerce.application.dto.PointChargeRequest;
 import com.jojo.ecommerce.application.exception.ConcurrencyBusyException;
 import com.jojo.ecommerce.application.port.in.PointUseCase;
 import com.jojo.ecommerce.application.port.out.PointRepositoryPort;
@@ -21,9 +21,8 @@ public class PointServiceRedis implements PointUseCase {
     private final PointRepositoryPort pointRepo;
     private final RedissonClient redisson;
 
-    @Transactional
     @Override
-    public Point chargePoint(CreatePointChargeRequest req) {
+    public Point chargePoint(PointChargeRequest req) {
         // 포인트락 생성
         RLock pointLock = redisson.getLock("lock:point:" + req.point().getUserId());
 

@@ -1,6 +1,6 @@
 package com.jojo.ecommerce.application.service;
 
-import com.jojo.ecommerce.application.dto.CreatePaymentRequest;
+import com.jojo.ecommerce.application.dto.PaymentRequest;
 import com.jojo.ecommerce.application.exception.AlreadyCompletedOrder;
 import com.jojo.ecommerce.application.exception.ConcurrencyBusyException;
 import com.jojo.ecommerce.application.port.in.PaymentUseCase;
@@ -33,29 +33,28 @@ public class PaymentServiceRedis implements PaymentUseCase {
     private final PointRepositoryPort pointRepo;
 
     @Override
-    @Transactional
-    public Payment pay(CreatePaymentRequest createPaymentRequest) {
-        if (createPaymentRequest.orderId() == null) {
+    public Payment pay(PaymentRequest paymentRequest) {
+        if (paymentRequest.orderId() == null) {
             throw new IllegalArgumentException("주문 시퀀스가 없습니다");
         }
-        if (createPaymentRequest.userId() == null) {
+        if (paymentRequest.userId() == null) {
             throw new IllegalArgumentException("유저 시퀀스가 없습니다");
         }
 
 
         // 주문락 생성
-        RLock orderLock = redisson.getLock("lock:order:" + createPaymentRequest.orderId());
+        RLock orderLock = redisson.getLock("lock:order:" + paymentRequest.orderId());
         // 포인트락 생성
-        RLock pointLock = redisson.getLock("lock:point:" + createPaymentRequest.userId());
+        RLock pointLock = redisson.getLock("lock:point:" + paymentRequest.userId());
         // 상품락 생성
-        List<RLock> productLocks = orderRepo.findByOrderId(createPaymentRequest.orderId()).getOrderItems().stream()
+        List<RLock> productLocks = orderRepo.findByOrderId(paymentRequest.orderId()).getOrderItems().stream()
                 .sorted(Comparator.comparing(OrderItem::getProductId)) // 항장 정렬. 데드락 방지!
                 .map(orderItem -> redisson.getLock("lock:product:" + orderItem.getProductId()))
                 .toList();
         // 쿠폰락 생성
         RLock couponLock = null;
-        if (createPaymentRequest.couponId() != null) {
-            couponLock = redisson.getLock("lock:coupon:" + createPaymentRequest.userId() + ":" + createPaymentRequest.couponId());
+        if (paymentRequest.couponId() != null) {
+            couponLock = redisson.getLock("lock:coupon:" + paymentRequest.userId() + ":" + paymentRequest.couponId());
         }
  
         // 멀티락: 항상 같은 순서로. 데드락 방지
@@ -83,7 +82,7 @@ public class PaymentServiceRedis implements PaymentUseCase {
             }
 
             // ===주문정보 가져오기===
-            Long orderId = createPaymentRequest.orderId();
+            Long orderId = paymentRequest.orderId();
             Order order = orderRepo.findByOrderId(orderId);
 
             // 이미 완료된 주문일경우 예외처리
@@ -94,9 +93,9 @@ public class PaymentServiceRedis implements PaymentUseCase {
             int amount = order.calculateTotalPrice();
 
             // ===쿠폰 있을경우===
-            if (createPaymentRequest.couponId() != null) {
+            if (paymentRequest.couponId() != null) {
                 // 쿠폰 정보 조회
-                UserCoupon userCoupon = userCouponRepo.findByUserCouponId(createPaymentRequest.userId(), createPaymentRequest.couponId());
+                UserCoupon userCoupon = userCouponRepo.findByUserCouponId(paymentRequest.userId(), paymentRequest.couponId());
                 Coupon coupon = couponRepo.findByCouponId(userCoupon.getCouponId());
 
                 // 할인율 적용하여 금액 계산
@@ -110,7 +109,7 @@ public class PaymentServiceRedis implements PaymentUseCase {
 
             // ===유저 포인트 차감===
             // 유저 포인트 조회
-            Point userPoint = pointRepo.findPointByUserId(createPaymentRequest.userId());
+            Point userPoint = pointRepo.findPointByUserId(paymentRequest.userId());
 
             // 유저 포인트 차감
             Point deductedPoint = userPoint.minusPoint(amount);
@@ -127,7 +126,7 @@ public class PaymentServiceRedis implements PaymentUseCase {
             }
             // ===결제 완료처리===
             // 결제 정보 생성
-            Payment payment = new Payment(orderId, createPaymentRequest.userId(), createPaymentRequest.couponId(), createPaymentRequest.paymentMethod(), amount);
+            Payment payment = new Payment(orderId, paymentRequest.userId(), paymentRequest.couponId(), paymentRequest.paymentMethod(), amount);
             // 결제 상태 "완료"로 변경
             payment.paymentCompleted();
             // 결제정보 저장
@@ -157,7 +156,6 @@ public class PaymentServiceRedis implements PaymentUseCase {
     }
 
     @Override
-    @Transactional
     public boolean cancelPayment(Long paymentId) {
         Payment payment = paymentRepo.findByPaymentId(paymentId);
         Order order = orderRepo.findByOrderId(payment.getOrderId());

@@ -1,6 +1,6 @@
 package com.jojo.ecommerce.application.service;
 
-import com.jojo.ecommerce.application.dto.CreatePaymentRequest;
+import com.jojo.ecommerce.application.dto.PaymentRequest;
 import com.jojo.ecommerce.application.exception.AlreadyCompletedOrder;
 import com.jojo.ecommerce.application.port.in.PaymentUseCase;
 import com.jojo.ecommerce.application.port.out.*;
@@ -22,8 +22,8 @@ public class PaymentService implements PaymentUseCase {
 
     @Override
     @Transactional
-    public Payment pay(CreatePaymentRequest createPaymentRequest) {
-        Long orderId = createPaymentRequest.orderId();
+    public Payment pay(PaymentRequest paymentRequest) {
+        Long orderId = paymentRequest.orderId();
 
         // 주문정보 가져오기
         Order order = orderRepo.findByOrderId(orderId);
@@ -34,8 +34,8 @@ public class PaymentService implements PaymentUseCase {
         int amount = order.calculateTotalPrice();
 
         // 쿠폰 있을경우
-        if (createPaymentRequest.couponId() != null) {
-            UserCoupon userCoupon = userCouponRepo.findByUserCouponId(createPaymentRequest.userId(), createPaymentRequest.couponId());
+        if (paymentRequest.couponId() != null) {
+            UserCoupon userCoupon = userCouponRepo.findByUserCouponId(paymentRequest.userId(), paymentRequest.couponId());
             Coupon coupon = couponRepo.findByCouponId(userCoupon.getCouponId());
 
             // 할인율 적용하여 금액 계산
@@ -48,7 +48,7 @@ public class PaymentService implements PaymentUseCase {
         }
 
         // 유저 포인트 차감
-        Point userPoint = pointRepo.findPointByUserId(createPaymentRequest.userId());
+        Point userPoint = pointRepo.findPointByUserId(paymentRequest.userId());
         Point deductedPoint = userPoint.minusPoint(amount);
         pointRepo.updatePoint(deductedPoint);
 
@@ -60,7 +60,7 @@ public class PaymentService implements PaymentUseCase {
             productRepo.updateProduct(product);
         }
 
-        Payment payment = new Payment(orderId, createPaymentRequest.userId(), createPaymentRequest.couponId(), createPaymentRequest.paymentMethod(), amount);
+        Payment payment = new Payment(orderId, paymentRequest.userId(), paymentRequest.couponId(), paymentRequest.paymentMethod(), amount);
 
         // 결제 완료처리
         payment.paymentCompleted();

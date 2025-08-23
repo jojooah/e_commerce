@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jojo.ecommerce.adapter.out.persistence.myBatis.mapper.ProductRankingMapper">
+
+    <resultMap id="RankMap" type="com.jojo.ecommerce.application.dto.ProductRankResponse">
+        <result column="rank_no"      property="rank"/>
+        <result column="product_id"   property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="total_qty"    property="totalQuantity"/>
+    </resultMap>
+
+    <select id="selectTopSoldProducts" resultMap="RankMap">
+        SELECT
+            DENSE_RANK() OVER (ORDER BY sub.total_qty DESC) AS rank_no
+          , sub.product_id
+          , sub.product_name
+          , sub.total_qty
+        FROM (
+            SELECT
+                oi.product_id
+              , p.product_name
+              , SUM(oi.quantity) AS total_qty
+            FROM order_item oi
+            INNER JOIN orders o ON o.order_id = oi.order_id
+            INNER JOIN product p ON p.product_id = oi.product_id
+            WHERE o.payment_status = 'PAYMENT_COMPLETED'
+            <if test="from != null and to != null">
+            AND o.reg_date between  #{from} and #{to}
+            </if>
+            GROUP BY oi.product_id, p.product_name
+        ) sub
+        ORDER BY sub.total_qty DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

@@ -1,7 +1,7 @@
 package com.jojo.ecommerce;
 
-import com.jojo.ecommerce.application.dto.CreateOrderRequest;
-import com.jojo.ecommerce.application.dto.ProductDto;
+import com.jojo.ecommerce.application.dto.ProductInfo;
+import com.jojo.ecommerce.application.dto.ProductOrderRequest;
 import com.jojo.ecommerce.application.port.in.OrderUseCase;
 import com.jojo.ecommerce.application.port.out.OrderRepositoryPort;
 import com.jojo.ecommerce.application.port.out.ProductRepositoryPort;
@@ -38,7 +38,7 @@ public class PlaceOrderSrviceIntegrationTest {
 
     private Product apple;
     private Product banana;
-    private List<ProductDto> productDtos;
+    private List<ProductInfo> productInfos;
 
     @BeforeEach
     void setUp() {
@@ -48,19 +48,19 @@ public class PlaceOrderSrviceIntegrationTest {
 
         // DTO 리스트 준비
         // 사과 2개, 바나나1개 담음
-        productDtos = List.of(new ProductDto(apple.getProductId(), apple.getProductName(), 2, apple.getProductPrice(), apple.getProductCode()), new ProductDto(banana.getProductId(), banana.getProductName(), 1, banana.getProductPrice(), banana.getProductCode()));
+        productInfos = List.of(new ProductInfo(apple.getProductId(), apple.getProductName(), 2, apple.getProductPrice(), apple.getProductCode()), new ProductInfo(banana.getProductId(), banana.getProductName(), 1, banana.getProductPrice(), banana.getProductCode()));
     }
 
     @Test
     void placeOrder_정상_동작() {
         // given
-        CreateOrderRequest req = new CreateOrderRequest(
+        ProductOrderRequest req = new ProductOrderRequest(
                 100L,               // userId
                 null,               // couponId
                 "REQ-1234",
                 3,                  // totalQuantity
                 2 * apple.getProductPrice() + 1 * banana.getProductPrice(),
-                productDtos);
+                productInfos);
 
         // when
         Order order = orderService.placeOrder(req);
@@ -85,7 +85,7 @@ public class PlaceOrderSrviceIntegrationTest {
     @Test
     void cancelOrder_주문_취소_동작() {
         // given: 주문 생성
-        CreateOrderRequest req = new CreateOrderRequest(200L, null,   "REQ-1234", 2, 2 * apple.getProductPrice(), List.of(new ProductDto(apple.getProductId(), apple.getProductName(), 2, apple.getProductPrice(), apple.getStock())));
+        ProductOrderRequest req = new ProductOrderRequest(200L, null,   "REQ-1234", 2, 2 * apple.getProductPrice(), List.of(new ProductInfo(apple.getProductId(), apple.getProductName(), 2, apple.getProductPrice(), apple.getStock())));
         Order order = orderService.placeOrder(req);
 
         // when: 주문 취소
@@ -104,8 +104,8 @@ public class PlaceOrderSrviceIntegrationTest {
         int totalQty = 3;
         int totalAmount = 2 * apple.getProductPrice() + 1 * banana.getProductPrice();
 
-        CreateOrderRequest req = new CreateOrderRequest(
-                userId, null, requestId, totalQty, totalAmount, productDtos
+        ProductOrderRequest req = new ProductOrderRequest(
+                userId, null, requestId, totalQty, totalAmount, productInfos
         );
 
         int threads = 20;
