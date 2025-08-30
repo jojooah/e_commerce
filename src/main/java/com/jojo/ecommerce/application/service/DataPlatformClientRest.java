@@ -16,11 +16,10 @@ import java.util.Map;
 @Primary
 @RequiredArgsConstructor
 public class DataPlatformClientRest implements DataPlatformPort {
-    private final RestTemplate  restTemplate;
+    private final RestTemplate restTemplate;
 
     @Value("${data-platform.base-url}")
     private String baseUrl;
-    private final DataPlatformClientRest dataPlatformClientRest;
 
     @Override
     public void sendOrderEvent(Map<String, Object> payload, String idempotencyKey) {
@@ -33,8 +32,6 @@ public class DataPlatformClientRest implements DataPlatformPort {
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
             headers.add("Idempotency-Key", idempotencyKey);
         }
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
-        restTemplate.postForEntity(baseUrl + path, entity, Void.class);
+        restTemplate.postForEntity(baseUrl + path, new HttpEntity<>(payload, headers), Void.class);
     }
 }
