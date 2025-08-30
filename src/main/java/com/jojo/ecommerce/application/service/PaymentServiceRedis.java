@@ -1,5 +1,6 @@
 package com.jojo.ecommerce.application.service;
 
+import com.jojo.ecommerce.application.dto.PaymentCompleteEvent;
 import com.jojo.ecommerce.application.dto.PaymentRequest;
 import com.jojo.ecommerce.application.exception.AlreadyCompletedOrder;
 import com.jojo.ecommerce.application.exception.ConcurrencyBusyException;
@@ -10,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,7 @@ public class PaymentServiceRedis implements PaymentUseCase {
     private final UserCouponRepositoryPort userCouponRepo;
     private final ProductRepositoryPort productRepo;
     private final PointRepositoryPort pointRepo;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public Payment pay(PaymentRequest paymentRequest) {
@@ -139,6 +142,17 @@ public class PaymentServiceRedis implements PaymentUseCase {
             // ===결제 이력 저장(결제완료)===
             historyRepo.savePaymentHistory(new PaymentHistory(saved.getPaymentId(), STATUS_TYPE.PAYMENT_COMPLETED));
 
+            //  이벤트 발행 (커밋 후 리스너가 전송)
+            String requestId = order.getRequestId(); // 주문 시 넣었던 requestId 사용
+            publisher.publishEvent(new PaymentCompleteEvent(
+                    saved.getOrderId(),
+                    saved.getPaymentId(),
+                    paymentRequest.userId(),
+                    requestId,
+                    saved.getPaymentPrice(),
+                    order.getOrderItems(),
+                    java.time.Instant.now()
+            ));
             return saved;
 
         } catch (InterruptedException e) {
